@@ -1,0 +1,56 @@
+[package]
+name = "pcap-ai-mcp"
+version = "1.0.0"
+edition = "2021"
+description = "An MCP server that wraps the Pcap AI REST API, enabling AI assistants to analyze local .pcap/.pcapng files."
+license = "MIT"
+repository = "https://github.com/pcap-ai/mcp-server.git"
+keywords = [
+  "mcp", 
+  "pcap", 
+  "security", 
+  "ai", 
+  "claude", 
+  "wireshark",      
+  "threat-hunting", 
+  "packet-analysis",
+  "network-forensics", 
+  "rust"            
+]
+categories = [
+  "security",              
+  "command-line-utilities", 
+  "network-programming",
+  "developer-tools"        
+]
+
+[[bin]]
+name = "pcap-ai-mcp"
+path = "src/main.rs"
+
+[dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# HTTP client with multipart + JSON support
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "multipart", "json", "stream"] }
+
+# Serialization / deserialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Async utilities for streaming
+tokio-util = { version = "0.7", features = ["io"] }
+
+# Ergonomic error handling
+anyhow = "1"
+
+[dev-dependencies]
+mockito = "1"
+
+[profile.release]
+opt-level = "z"
+strip = true
+lto = true
+codegen-units = 1
+panic = "abort"

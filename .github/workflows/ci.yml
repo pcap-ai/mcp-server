@@ -1,0 +1,42 @@
+name: Continuous Integration
+
+# Trigger the workflow on pushes to main and on any Pull Request targeting main
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-and-lint:
+    name: Check, Lint, and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          # We need clippy and rustfmt for linting and formatting checks
+          components: clippy, rustfmt
+
+      # This action caches Rust dependencies to make subsequent runs MUCH faster
+      - name: Rust Cache
+        uses: Swatinem/rust-cache@v2
+
+      # 1. Check formatting (Ensure everyone writes code in the same style)
+      - name: Run cargo fmt
+        run: cargo fmt --all -- --check
+
+      # 2. Check for common mistakes and unidiomatic code
+      # The '-D warnings' flag turns warnings into errors, forcing clean code
+      - name: Run cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      # 3. Run all unit and integration tests (including our mockito tests)
+      - name: Run cargo test
+        run: cargo test --all-features
